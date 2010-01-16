@@ -1,0 +1,25 @@
+<center>
+<h1>Cari Kajian</h1>
+<form>
+	<input type='text' name='q' value='{{query}}' size='55'></input>
+        <input type='submit' value='Cari'></input>
+</form>
+</center>
+{% for row in rows %}
+	<a title="{{row.url}}"href="{{row.clickurl}}">{{row.title}}</a>
+	<br>
+	{{row.abstract}}
+	<br>
+	{{row.url}}
+	<br>
+	<br>
+{% endfor %}
+
+{% if prev %}
+<a href="{{prev}}">Prev Page</a>
+{% endif %}
+&nbsp;&nbsp;&nbsp;
+
+{% if next %}
+<a href="{{next}}">Next Page</a>
+{% endif %}
