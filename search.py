@@ -9,21 +9,36 @@ from yos.boss import ysearch
 import os
 
 class MainPage(webapp.RequestHandler):
+  count = 10
   def get(self):
-    try:
-      query = self.request.get('q')
-    except (TypeError,ValueError):
-      query = 'nikah'
+    query = self.request.get('q')
+    if query == '':
+	query = "nikah"
+
+    page = self.request.get('page')
+    if page == '':
+	page = 1
+
+
     rows = list()
     prev = None
     next = None
     if query != '':
 	    try:
-	      data = ysearch.search(query, more={'sites':'kajian.net,ilmoe.com,radiorodja.com,radiomuslim.com'})
+	      data = ysearch.search(query, count=self.count, start = (int(page)-1)*10, more={'sites':'kajian.net,ilmoe.com,radiorodja.com,radiomuslim.com'})
 	      results = db.create(data=data)
               rows = results.rows
-              prev = data.prevpage
-	      next = data.nextpage
+	      try:
+	        prev = data['ysearchresponse']['prevpage']
+		prev = int(page)-1
+	      except (KeyError):
+		pass
+
+	      try:
+		next = data['ysearchresponse']['nextpage']
+		next = int(page)+1
+	      except (KeyError):
+		pass
             except (DownloadError):
 	      pass
 	    

@@ -16,10 +16,10 @@
 {% endfor %}
 
 {% if prev %}
-<a href="{{prev}}">Prev Page</a>
-{% endif %}
+<a href="?q={{query}}&page={{prev}}">Prev Page</a>
 &nbsp;&nbsp;&nbsp;
+{% endif %}
 
 {% if next %}
-<a href="{{next}}">Next Page</a>
+<a href="?q={{query}}&page={{next}}">Next Page</a>
 {% endif %}
