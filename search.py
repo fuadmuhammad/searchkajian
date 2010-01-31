@@ -13,35 +13,33 @@ class MainPage(webapp.RequestHandler):
   def get(self):
     query = self.request.get('q')
     if query == '':
-	query = "nikah"
+	  query = "nikah"
 
     page = self.request.get('page')
     if page == '':
-	page = 1
+	  page = 1
 
 
     rows = list()
     prev = None
     next = None
     if query != '':
-	    try:
-	      data = ysearch.search(query, count=self.count, start = (int(page)-1)*10, more={'sites':'kajian.net,ilmoe.com,radiorodja.com,radiomuslim.com'})
-	      results = db.create(data=data)
-              rows = results.rows
-	      try:
-	        prev = data['ysearchresponse']['prevpage']
-		prev = int(page)-1
-	      except (KeyError):
-		pass
-
-	      try:
-		next = data['ysearchresponse']['nextpage']
-		next = int(page)+1
-	      except (KeyError):
-		pass
-            except (DownloadError):
-	      pass
-	    
+      try:
+        data = ysearch.search(query, count=self.count, start = (int(page)-1)*10, more=	{'sites':'kajian.net,ilmoe.com,radiorodja.com,radiomuslim.com,salafiyunpad.wordpress.com,problemamuslim.wordpress.com'})
+        results = db.create(data=data)
+        rows = results.rows
+        try:
+          prev = data['ysearchresponse']['prevpage']
+          prev = int(page)-1
+        except (KeyError):
+	  pass
+	try:
+          next = data['ysearchresponse']['nextpage']
+	  next = int(page)+1
+	except (KeyError):
+          pass
+      except (DownloadError):
+        pass
 	
     template_values = {
 	'rows': rows,
@@ -52,9 +50,27 @@ class MainPage(webapp.RequestHandler):
     path = os.path.join(os.path.dirname(__file__), 'index.html')
     self.response.out.write(template.render(path, template_values))
 
+class Newest(webapp.RequestHandler):
+  def get(self):
+    rows = list()
+    try:
+      data = ysearch.search('',count=50, more={'sites':'kajian.net,ilmoe.com,radiorodja.com,radiomuslim.com,salafiyunpad.wordpress.com,problemamuslim.wordpress.com','style':'raw'})
+      results = db.create(data=data)
+      results = db.sort(key="date",table=results)
+      rows = results.rows
+    except (DownloadError):
+      pass
+	
+    template_values = {
+	'rows': rows,
+    }
+    path = os.path.join(os.path.dirname(__file__), 'newest.html')
+    self.response.out.write(template.render(path, template_values))
 
 application = webapp.WSGIApplication(
-                                     [('/', MainPage)])
+                                     [('/', MainPage),
+                                      ('/terbaru',Newest)
+                                      ])
 
 def main():
   run_wsgi_app(application)
