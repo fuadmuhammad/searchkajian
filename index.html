@@ -1,25 +1,97 @@
-<center>
-<h1>Cari Kajian</h1>
-<form>
-	<input type='text' name='q' value='{{query}}' size='55'></input>
-        <input type='submit' value='Cari'></input>
-</form>
-</center>
-{% for row in rows %}
-	<a title="{{row.url}}"href="{{row.clickurl}}">{{row.title}}</a>
-	<br>
-	{{row.abstract}}
-	<br>
-	{{row.url}}
-	<br>
-	<br>
-{% endfor %}
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>Mesin Pencari Kajian</title>
 
-{% if prev %}
-<a href="?q={{query}}&page={{prev}}">Prev Page</a>
-&nbsp;&nbsp;&nbsp;
-{% endif %}
+  <script src="https://www.google.com/jsapi" type="text/javascript"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    // Load the Search API
+    google.load('search', '1');
 
-{% if next %}
-<a href="?q={{query}}&page={{next}}">Next Page</a>
-{% endif %}
+    // Set a callback to load the Custom Search Element when you page loads
+    google.setOnLoadCallback(
+      function(){
+        var customSearchControl = new google.search.CustomSearchControl('006520648358608470143:olfm1t4eiea');
+
+        // Use "mysite_" as a unique ID to override the default rendering.
+        google.search.Csedr.addOverride("mysite_");
+        customSearchControl.getWebSearcher().setResultSetSize(20);
+        customSearchControl.setNoResultsString("Pencarian tidak ditemukan")
+
+        // Draw the Custom Search Control in the div named "CSE"
+        var options = new google.search.DrawOptions();
+        options.setAutoComplete(true);
+        customSearchControl.draw('cse',options);
+        
+        customSearchControl.setSearchCompleteCallback(this,function(){
+            $('.gsc-webResult').each(function(){
+              if($(this).children().size()<=1){
+                $(this).hide();     
+              }
+            });
+        });
+        
+        // Execute an initial search
+        customSearchControl.execute("aqidah");
+        
+      },
+    true);
+    
+    function check(title,content,visibleUrl,unescapedUrl){
+      if(visibleUrl.indexOf("kajian.net")!=-1){
+        if(content.indexOf('Daftar') !=-1){
+          return false;
+        }else if(title.indexOf('Daftar') !=-1){
+          return false;
+        }else{
+          return true;
+        }
+      }else if(visibleUrl.indexOf("ilmoe.com")!=-1){
+        if(unescapedUrl.indexOf('txt') !=-1){
+          return false;
+        }else{
+          return true;
+        }
+      }else if(visibleUrl.indexOf("alqiyamah.wordpress.com")!=-1){
+        return true;
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="http://www.google.com/cse/style/look/default.css" type="text/css" />
+</head>
+<body>
+
+  <div style="display:none">
+
+    <!-- Return the unescaped result URL.-->
+    <div id="mysite_webResult">
+      <div class="gs-webResult gs-result" data-if='check(title,content,visibleUrl,unescapedUrl)'>
+
+        <!-- Build the result data structure.-->
+        <table>
+          <tr>
+            <td valign="top">
+
+              <!-- Append results within the table cell.-->
+              <div>
+                <div class="gs-title" >
+                  <a class="gs-title" data-attr="{href:unescapedUrl,target:target}"
+                    data-body="html(title)"></a>
+                </div>
+                <div class="gs-snippet" data-body="html(content)"></div>
+                <div class="gs-source" data-body="visibleUrl"></div>
+            </div>
+
+            </td>
+          </tr>
+        </table>
+      </div>
+     </div>
+  </div>
+
+  <!-- Div container for the searcher.-->
+  <div id="cse"></div>
+</body>
+</html>
